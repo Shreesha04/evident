@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Enrollment</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <h2>Student Enrollment Form</h2>
+    <form id="enrollmentForm" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Enroll</button>
+    </form>
+    <button onclick="window.location.href='{% url  'generate_csv' %}';">Download CSV</button>
+    <button onclick="window.location.href='{% url 'generate_pdf' %}';">Download PDF</button>
+
+    <script>
+    $(document).ready(function() {
+        $('#enrollmentForm').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '{% url "enrollment_form" %}',
+                data: $('#enrollmentForm').serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        $('#enrollmentForm')[0].reset();
+                    } else {
+                        alert('Error: ' + JSON.stringify(response.errors));
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Error: ' + errmsg);
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
